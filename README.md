@@ -18,9 +18,14 @@ It also documents the benchmark results from this system.
 
 ## Install
 
+Set your workspace path once:
+```bash
+export ROS2_WS=/path/to/ros2_ws
+```
+
 ### ROS 2 workspace setup
 ```bash
-cd ~/codex_project/ros2_ws
+cd $ROS2_WS
 colcon build --symlink-install
 source install/setup.bash
 ```
@@ -34,19 +39,19 @@ python3 -m pip install --user sparkfun-qwiic-icm20948 smbus2
 
 ### 1) Build kernel module (already prepared in this repo)
 ```bash
-cd ~/codex_project/icm20948_kmod
+cd /path/to/icm20948_kmod
 make
 ```
 
 ### 2) Load module + bind I2C device
 ```bash
-sudo insmod ~/codex_project/icm20948_kmod/inv_icm20948.ko
+sudo insmod /path/to/icm20948_kmod/inv_icm20948.ko
 sudo sh -c 'echo icm20948 0x68 > /sys/bus/i2c/devices/i2c-7/new_device'
 ```
 
 ### 3) Run ROS 2 node
 ```bash
-source ~/codex_project/ros2_ws/install/setup.bash
+source $ROS2_WS/install/setup.bash
 ros2 launch icm20948_ros iio_imu.launch.py
 ```
 
@@ -62,18 +67,18 @@ sudo sh -c 'echo 0x68 > /sys/bus/i2c/devices/i2c-7/delete_device'
 
 ### 2) Run ROS 2 node
 ```bash
-source ~/codex_project/ros2_ws/install/setup.bash
+source $ROS2_WS/install/setup.bash
 ros2 launch icm20948_ros qwiic_imu.launch.py
 ```
 
 Publishes: `imu/data_raw`
 
-## Benchmark Results (200 Hz, 10 s)
+## Benchmark Results (200 Hz, 60 s)
 
-| Method | samples | achieved_hz | dt_mean_ms | dt_std_ms | dt_min_ms | dt_max_ms | cpu_pct |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Kernel IIO | 2000 | 199.998 | 5.000 | 0.0039 | 4.979 | 5.055 | 5.43 |
-| Userspace qwiic | 2000 | 199.998 | 5.000 | 0.0415 | 4.779 | 5.254 | 3.25 |
+| Method | dt_std_ms | dt_min_ms | dt_max_ms | cpu_pct |
+| --- | --- | --- | --- | --- |
+| Kernel IIO | 0.0166 | 4.7894 | 5.2173 | 4.94 |
+| Userspace qwiic | 0.1661 | 0.9736 | 15.3921 | 2.81 |
 
 **Conclusion**: Kernel IIO is ~10x lower jitter and better for VSLAM / SLAM.
 
