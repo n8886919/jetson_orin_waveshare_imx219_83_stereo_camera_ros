@@ -6,3 +6,9 @@ __pycache__/
 build/
 install/
 log/
+*.ko
+*.o
+*.mod
+*.symvers
+*.order
+*.cmd

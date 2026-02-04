@@ -3,20 +3,23 @@
   <name>icm20948_ros</name>
   <version>0.1.0</version>
   <description>ICM20948 IMU publishers for Jetson (kernel IIO and userspace) with benchmark notes.</description>
-  <maintainer email="oomii@localhost">oomii</maintainer>
+  <maintainer email="oomii@example.com">oomii</maintainer>
   <license>Apache-2.0</license>
 
-  <buildtool_depend>ament_python</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>message_filters</exec_depend>
+  <exec_depend>isaac_ros_argus_camera</exec_depend>
 
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

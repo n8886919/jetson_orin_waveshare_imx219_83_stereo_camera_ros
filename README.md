@@ -26,8 +26,25 @@ export ROS2_WS=/path/to/ros2_ws
 ### ROS 2 workspace setup
 ```bash
 cd $ROS2_WS
-colcon build --symlink-install
+colcon build --merge-install --symlink-install
 source install/setup.bash
+```
+
+If you previously built with an isolated install layout, clean and rebuild:
+```bash
+rm -rf install build log
+colcon build --symlink-install --merge-install
+source install/setup.bash
+```
+
+If `ros2` still cannot find the package, temporarily export:
+```bash
+export AMENT_PREFIX_PATH=$ROS2_WS/install:$AMENT_PREFIX_PATH
+```
+
+### RViz (optional)
+```bash
+sudo apt install -y ros-humble-rviz2
 ```
 
 ### Userspace dependencies
@@ -39,13 +56,13 @@ python3 -m pip install --user sparkfun-qwiic-icm20948 smbus2
 
 ### 1) Build kernel module (already prepared in this repo)
 ```bash
-cd /path/to/icm20948_kmod
+cd /path/to/icm20948_kmod_jetson
 make
 ```
 
 ### 2) Load module + bind I2C device
 ```bash
-sudo insmod /path/to/icm20948_kmod/inv_icm20948.ko
+sudo insmod /path/to/icm20948_kmod_jetson/inv_icm20948.ko
 sudo sh -c 'echo icm20948 0x68 > /sys/bus/i2c/devices/i2c-7/new_device'
 ```
 
@@ -72,6 +89,36 @@ ros2 launch icm20948_ros qwiic_imu.launch.py
 ```
 
 Publishes: `imu/data_raw`
+
+## Visual SLAM (Stereo + IMU, Mapping On)
+
+This launch starts:
+- Argus mono left + right cameras (module 0/1)
+- Kernel IIO IMU publisher
+- Visual SLAM with mapping enabled
+- RViz (optional)
+
+```bash
+source $ROS2_WS/install/setup.bash
+export AMENT_PREFIX_PATH=$ROS2_WS/install:$AMENT_PREFIX_PATH
+ros2 launch icm20948_ros vslam_stereo_imu_map.launch.py
+```
+
+Arguments:
+- `module_id_left` (default `0`)
+- `module_id_right` (default `1`)
+- `imu_frame` (default `imu_link`)
+- `base_frame` (default `base_link`)
+- `launch_rviz` (default `true`)
+
+If your stereo cameras are not hardware-synchronized, you may see degraded SLAM performance.
+
+## Camera Topics (Dual Mono)
+When running the dual mono Argus launch, the topics are:
+- `/left/image_raw`
+- `/left/camera_info`
+- `/right/image_raw`
+- `/right/camera_info`
 
 ## Benchmark Results (200 Hz, 60 s)
 
